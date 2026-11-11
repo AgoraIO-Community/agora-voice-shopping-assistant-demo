@@ -1,8 +1,8 @@
 /* Agora Glass: full CSS color values, using shadcn/ui semantic token names. */
 :root {
   color-scheme: light;
-  --font-sans: "MiSans", sans-serif;
-  --font-mono: "MiSans", sans-serif;
+  --font-sans: "Helvetica Neue", sans-serif;
+  --font-mono: "Helvetica Neue", sans-serif;
   --background: #f5f6f7;
   --foreground: #17232b;
   --card: #ffffff;

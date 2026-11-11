@@ -53,7 +53,7 @@ Use Node.js 24 from .nvmrc and pnpm 9.15.9. Install with pnpm install --frozen-l
 - Use fresh Catalog replies, no-store requests/responses and original merchant image URLs. Do not cache results, re-host images or copy live listings into fixtures.
 - lib/shopify-market.ts owns diagnostic market validation and currency-specific budget conversion. Prices use currency minor units. Unknown price/stock remains unknown; inferred descriptions are not verified specifications. The merchant confirms final totals and delivery.
 - NEXT_PUBLIC_AGORA_APP_ID is public and required at build/runtime. NEXT_AGORA_APP_CERTIFICATE and any optional SHOPIFY_CATALOG_ACCESS_TOKEN stay server-only. Local trials may use Shopify's hosted example UCP profile.
-- Retain source attribution, licenses and font notices.
+- Retain source attribution and licenses.
 
 ## Public presentation ownership
 
@@ -92,3 +92,7 @@ Keep README.md, AGENTS.md, RECIPE.md and the conversation contract in ARCHITECTU
 - **No git config changes** — do not modify `user.name` or `user.email`.
 
 Local edits and verification do not authorize a commit. A commit does not authorize a push or GitHub write; each needs an explicit current-conversation request. Never change Git identity or bypass hooks.
+
+## Typography
+
+Use the installed Helvetica Neue/sans-serif fallback and keep the shared font tokens consistent with global/form-control styles. Do not bundle or download font assets. Preserve UI source attribution and other third-party notices. Check desktop/mobile rendering after typography changes.

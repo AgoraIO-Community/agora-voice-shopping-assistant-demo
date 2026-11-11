@@ -21,7 +21,7 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: MiSans, 'Helvetica Neue', sans-serif;
+  font-family: 'Helvetica Neue', sans-serif;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
 }
@@ -403,7 +403,7 @@ button:disabled {
   background: var(--card);
   color: var(--foreground);
   font:
-    14px/22px MiSans,
+    14px/22px 'Helvetica Neue',
     sans-serif;
 }
 .demo-evidence {

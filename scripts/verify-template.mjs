@@ -37,3 +37,8 @@ if (pkg.scripts['verify:docker']) {
   assert.match(read('.github/workflows/docker.yml'), /pnpm run verify:docker/);
 }
 console.log('Demo repository checks passed: ' + pkg.name);
+
+for (const file of ['app/globals.css', 'styles/agent-ui/recipes.css', 'styles/agent-ui/tokens.css']) {
+  assert.ok(!/MiSans|@font-face|url\([^)]*\.(?:woff2?|ttf|otf)/i.test(read(file)), 'Use system fonts without bundled font references: ' + file);
+}
+assert.ok(!fs.existsSync(path.join(root, 'public/fonts')), 'Do not ship bundled font assets.');
