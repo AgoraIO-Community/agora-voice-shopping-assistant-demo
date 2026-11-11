@@ -2,6 +2,8 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
+本文仅翻译文档；应用界面和语音对话仍使用英语。请使用下方英文示例试说，中文仅供理解。
+
 基于 Agora Conversational AI 的语音购物助手演示，可跨 Shopify 商店搜索和比较商品。
 
 **[在 Agora Recipes 探索更多语音 AI 演示 →](https://recipes.agora.io/)**
@@ -130,7 +132,7 @@ Next.js 签发浏览器 token 并启动 Agora Agent。Agent 在对话中查询 S
 
 ### 可以问助手什么？
 
-可以说：“找配送到英国、150 英镑以内的越野跑鞋”，再说“预算改成 100 英镑，还有其他选项吗？”
+可以说：“Find trail running shoes for delivery to the UK under 150 British pounds”（意为“找配送到英国、150 英镑以内的越野跑鞋”），再说“My budget is now 100 British pounds. Can you find another option?”（意为“预算改成 100 英镑，还有其他选项吗？”）
 
 ### 商品推荐来自哪里？
 

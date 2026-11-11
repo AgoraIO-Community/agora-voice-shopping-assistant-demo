@@ -2,6 +2,8 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
+この文書のみを日本語に翻訳しています。アプリの画面と音声会話は英語です。以下の発話例は英語で話してください。日本語訳は意味を確認するためのものです。
+
 Agora Conversational AI を使った音声ショッピングアシスタントのデモです。Shopify ストアを横断して商品を検索、比較できます。
 
 **[Agora Recipes で音声 AI デモをもっと探す →](https://recipes.agora.io/)**
@@ -130,7 +132,7 @@ Next.js がブラウザー用トークンを発行し、Agora Agent を起動し
 
 ### 何を質問できますか？
 
-例：「英国に配送できる150ポンド以下のトレイルランニングシューズを探して。」続けて「予算を100ポンドに変えます。他にありますか？」と尋ねます。
+例：「Find trail running shoes for delivery to the UK under 150 British pounds.」（訳：「英国に配送できる150ポンド以下のトレイルランニングシューズを探して。」）続けて「My budget is now 100 British pounds. Can you find another option?」（訳：「予算を100ポンドに変えます。他にありますか？」）と尋ねます。
 
 ### おすすめ商品はどこから取得しますか？
 
