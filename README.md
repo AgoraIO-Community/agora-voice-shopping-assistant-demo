@@ -1,5 +1,7 @@
 # Agora Voice Shopping Assistant Demo
 
+[English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
+
 A voice shopping assistant demo for searching and comparing products across Shopify stores, built with Agora Conversational AI.
 
 **[Explore more voice AI demos on Agora Recipes →](https://recipes.agora.io/)**
@@ -75,9 +77,9 @@ Open [localhost:3000](http://localhost:3000), choose **Start voice shopping**, a
 
 ### Deploy to Vercel
 
-[![Import into Vercel](https://vercel.com/button)](https://vercel.com/new)
+[![Import into Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FAgoraIO-Community%2Fagora-voice-shopping-assistant-demo&env=NEXT_PUBLIC_AGORA_APP_ID%2CNEXT_AGORA_APP_CERTIFICATE&envDescription=Agora%20App%20ID%20and%20App%20Certificate%20from%20Agora%20Console.%20Enable%20Conversational%20AI%20for%20the%20project.&envLink=https%3A%2F%2Fdocs.agora.io%2Fen%2Fintroduction%2Fconsole-setup&project-name=agora-voice-shopping-assistant-demo&repository-name=agora-voice-shopping-assistant-demo)
 
-1. Import this repository into Vercel.
+1. Click the button to clone this repository into your Git account and import it into Vercel.
 2. Select **Next.js** and Node.js 24.
 3. Add `NEXT_PUBLIC_AGORA_APP_ID` and `NEXT_AGORA_APP_CERTIFICATE` under **Environment Variables**, then deploy.
 
