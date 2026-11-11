@@ -1,1 +1,2 @@
 export const DEFAULT_AGENT_UID = 123456;
+export const TOKEN_LIFETIME_SECONDS = 600;

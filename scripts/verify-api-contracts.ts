@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { AgoraClient, Agent } from 'agora-agents';
 import { RtcTokenBuilder } from 'agora-token';
 import { NextRequest } from 'next/server';
@@ -256,7 +257,64 @@ async function verifyStopConversationSuccess() {
   }
 }
 
+async function verifyRealTokenLifetimes() {
+  const require = createRequire(import.meta.url);
+  const { AccessToken2 } = require('agora-token/src/AccessToken2') as {
+    AccessToken2: new () => {
+      from_string(value: string): boolean;
+      verifySignature(certificate: string): boolean;
+      issueTs: number;
+      expire: number;
+    };
+  };
+  const lifetimes: Record<string, number> = {};
+  const inspect = (label: string, value: unknown) => {
+    assert(typeof value === 'string' && value.length > 0, label + ': missing token');
+    const parsed = new AccessToken2();
+    assert(parsed.from_string(value), label + ': invalid token encoding');
+    assert(parsed.verifySignature(process.env.NEXT_AGORA_APP_CERTIFICATE!), label + ': invalid signature');
+    assert(Math.abs(parsed.issueTs - Math.floor(Date.now() / 1000)) <= 5, label + ': stale issue time');
+    lifetimes[label] = parsed.expire;
+  };
+  const { GET } = await import('../app/api/generate-agora-token/route');
+  const clientResponse = await GET(new NextRequest('http://localhost/api/generate-agora-token?uid=4321&channel=expiry-regression'));
+  inspect('browser', (await getJson(clientResponse)).token);
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input, init) => {
+    const path = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url).pathname;
+    const authorization = new Headers(init?.headers).get('Authorization');
+    assert(typeof authorization === 'string' && authorization.startsWith('agora token='), 'SDK request must use server-only Agora token auth');
+    inspect(path.endsWith('/join') ? 'start-rest' : 'stop-rest', authorization.slice('agora token='.length));
+    if (path.endsWith('/join')) {
+      const body = JSON.parse(String(init?.body)) as { properties: { token: string } };
+      inspect('agent-rtc-rtm', body.properties.token);
+      return Response.json({ agent_id: 'expiry-regression-agent', state: 'RUNNING' });
+    }
+    assert(path.endsWith('/leave'), 'Unexpected SDK network request in offline expiry regression: ' + path);
+    return new Response(null, { status: 200 });
+  };
+  try {
+    const { POST: invite } = await import('../app/api/invite-agent/route');
+    const response = await invite(new NextRequest('http://localhost/api/invite-agent', {
+      method: 'POST', body: JSON.stringify({ requester_id: '4321', channel_name: 'expiry-regression' }),
+    }));
+    assert(response.status === 200, 'Real SDK start serialization should succeed with an intercepted transport');
+    const { POST: stop } = await import('../app/api/stop-conversation/route');
+    const stopped = await stop(new Request('http://localhost/api/stop-conversation', {
+      method: 'POST', body: JSON.stringify({ agent_id: 'expiry-regression-agent' }),
+    }));
+    assert(stopped.status === 200, 'Real SDK stop serialization should succeed with an intercepted transport');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+  console.log('Decoded real token lifetimes (seconds):', lifetimes);
+  for (const label of ['browser', 'start-rest', 'agent-rtc-rtm', 'stop-rest']) {
+    assert(lifetimes[label] === 600, label + ': token lifetime must be ten minutes, got ' + lifetimes[label]);
+  }
+}
+
 async function main() {
+  await verifyRealTokenLifetimes();
   await verifyGenerateAgoraTokenRoute();
   await verifyGenerateAgoraTokenReplacesZeroUid();
   await verifyInviteAgentValidation();

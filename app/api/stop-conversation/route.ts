@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { AgoraClient, Area } from 'agora-agents';
+import { ConvoAITokenBuilder } from 'agora-token';
+import { TOKEN_LIFETIME_SECONDS } from '@/lib/agora';
 import { StopConversationRequest } from '@/types/conversation';
 
 function isAgentAlreadyStoppingOrStopped(error: unknown): boolean {
@@ -47,6 +49,10 @@ export async function POST(request: Request) {
       area: Area.US,
       appId,
       appCertificate,
+      authToken: ConvoAITokenBuilder.buildToken(
+        appId, appCertificate, 'stop', '0',
+        TOKEN_LIFETIME_SECONDS, TOKEN_LIFETIME_SECONDS,
+      ),
     });
     try {
       await client.stopAgent(agent_id);

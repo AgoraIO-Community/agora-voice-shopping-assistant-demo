@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { RtcTokenBuilder, RtcRole } from 'agora-token';
-
-const EXPIRATION_TIME_IN_SECONDS = 3600;
+import { TOKEN_LIFETIME_SECONDS } from '@/lib/agora';
 
 function generateChannelName(): string {
   const timestamp = Date.now();
@@ -29,9 +28,6 @@ export async function GET(request: NextRequest) {
     : parsedUid;
   const channelName = searchParams.get('channel') || generateChannelName();
 
-  const expirationTime =
-    Math.floor(Date.now() / 1000) + EXPIRATION_TIME_IN_SECONDS;
-
   try {
     // console.log('Building RTC+RTM token: uid =', uid, 'channel =', channelName);
     const token = RtcTokenBuilder.buildTokenWithRtm(
@@ -40,8 +36,8 @@ export async function GET(request: NextRequest) {
       channelName,
       uid.toString(),
       RtcRole.PUBLISHER,
-      expirationTime,
-      expirationTime,
+      TOKEN_LIFETIME_SECONDS,
+      TOKEN_LIFETIME_SECONDS,
     );
     // console.log('Token generated successfully (RTC + RTM)');
 

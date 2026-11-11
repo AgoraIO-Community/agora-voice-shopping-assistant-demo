@@ -4,12 +4,12 @@ import {
   Agent,
   Area,
   DeepgramSTT,
-  ExpiresIn,
   MiniMaxTTS,
   OpenAI,
 } from 'agora-agents';
+import { ConvoAITokenBuilder } from 'agora-token';
 import { ClientStartRequest, AgentResponse } from '@/types/conversation';
-import { DEFAULT_AGENT_UID } from '@/lib/agora';
+import { DEFAULT_AGENT_UID, TOKEN_LIFETIME_SECONDS } from '@/lib/agora';
 import { RUNTIME_PROFILE } from '@/lib/runtime-profile';
 import { getScenarioConfig, getScenarioPrompt } from '@/lib/agent-config';
 import { getScenarioTools } from '@/lib/agent-tools';
@@ -47,10 +47,17 @@ export async function POST(request: NextRequest) {
     // AgoraClient authenticates API calls to the Agora Conversational AI service.
     // area: change to Area.EU or Area.AP for European or Asia-Pacific deployments.
     const scenario = getScenarioConfig();
+    // The explicit builder avoids the SDK 2.14 / agora-token 2.0.7
+    // positional-argument mismatch that otherwise creates a one-second token.
+    const token = ConvoAITokenBuilder.buildToken(
+      appId, appCertificate, channel_name, agentUid,
+      TOKEN_LIFETIME_SECONDS, TOKEN_LIFETIME_SECONDS,
+    );
     const client = new AgoraClient({
       area: Area.US,
       appId,
       appCertificate,
+      authToken: token,
     });
 
     // Pipeline: Deepgram (reseller) STT → OpenAI (reseller) LLM → MiniMax (reseller) TTS.
@@ -168,10 +175,11 @@ export async function POST(request: NextRequest) {
     // remoteUids restricts the agent to only process audio from this user
     const session = agent.createSession({
       channel: channel_name,
+      token,
       agentUid,
       remoteUids: [requester_id],
       idleTimeout: 30,
-      expiresIn: ExpiresIn.hours(1),
+      expiresIn: TOKEN_LIFETIME_SECONDS,
       debug: false, // enable debug to show restful API calls in the console
     });
 
