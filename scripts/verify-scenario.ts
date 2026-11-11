@@ -1,0 +1,31 @@
+import { getConversationContext } from '../lib/prompt-context';
+import assert from 'node:assert/strict';
+import { getScenarioConfig, getScenarioPrompt } from '../lib/agent-config';
+import { getScenarioPresentation } from '../lib/presentation';
+const config = getScenarioConfig();
+assert.equal(config.id, "10-voice-shopping");
+assert.equal(getScenarioPresentation().id, config.id);
+for (const key of ['role', 'workflow', 'guardrails', 'greeting'] as const) assert.ok(config[key]);
+assert.match(getScenarioPrompt(), /# Goal and conversation flow/);
+assert.match(getScenarioPrompt(), /# Read-only shopping boundary/);
+assert.match(getScenarioPrompt(), /No cart changes, order placement/);
+assert.match(getScenarioPrompt(), /ISO 4217 minor-unit prices/);
+assert.match(getScenarioPrompt(), /price.max/);
+assert.match(getScenarioPrompt(), /budget is optional/i);
+assert.match(getScenarioPrompt(), /Only compare offers in the confirmed budget currency/);
+assert.doesNotMatch(config.role + config.greeting, /microphones|cameras|electronics/);
+assert.doesNotMatch(getScenarioPrompt(), /Agora Mini Mic|Agora Studio Mic|Agora Desk Camera/);
+assert.doesNotMatch(getScenarioPrompt(), /AG-100[123]|patient-alex|AST-R3001|travelerKey|participantId/);
+assert.doesNotMatch(getScenarioPrompt(), /View at store|Continue to merchant|Browse products|Discuss by voice|product-button request|Catalog context/, 'The voice prompt must not refer to the removed product browser.');
+console.log('Scenario conversation contract passed: ' + config.id);
+
+// Calendar regressions: U.S. dates can differ from UTC and offsets change with DST.
+const localNight = getConversationContext('America/New_York', new Date('2026-11-05T02:30:00Z'));
+assert.match(localNight, /Current local date: 2026-11-04/);
+assert.match(localNight, /UTC-05:00/);
+assert.match(getConversationContext('America/New_York', new Date('2026-03-08T06:30:00Z')), /UTC-05:00/);
+assert.match(getConversationContext('America/New_York', new Date('2026-03-08T07:30:00Z')), /UTC-04:00/);
+assert.match(getConversationContext('America/Chicago', new Date('2026-07-01T03:30:00Z')), /Current local date: 2026-06-30/);
+assert.match(getConversationContext('America/New_York', new Date('2026-12-31T17:00:00Z')), /2027-01-01 Friday/);
+assert.match(getConversationContext('America/New_York', new Date('2028-02-28T17:00:00Z')), /2028-02-29 Tuesday; 2028-03-01 Wednesday/);
+console.log('Prompt local-date, DST and calendar regressions passed.');

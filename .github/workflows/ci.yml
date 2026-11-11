@@ -1,0 +1,28 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["24"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Configure synthetic credentials for local checks only
+        run: |
+          printf 'NEXT_PUBLIC_AGORA_APP_ID=0123456789abcdef0123456789abcdef\nNEXT_AGORA_APP_CERTIFICATE=fedcba9876543210fedcba9876543210\n' > .env.local
+      - run: pnpm run verify
