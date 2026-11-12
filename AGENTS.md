@@ -43,6 +43,10 @@ Use Node.js 24 from .nvmrc and pnpm 9.15.9. Install with pnpm install --frozen-l
 
 ## Preserve these contracts
 
+- LandingPage owns the ten-minute browser session deadline and reuses the guarded stop flow. Preserve wall-time checks on focus/visibility, five-second stop retries, cleanup, transcript retention and reset on restart. This is not a server-side usage cap.
+
+The conversation header shows a small, muted countdown (10:00 left) immediately before the connection status. The last minute is highlighted, with an automatic-stop notice for screen readers. At the deadline the timer stays at 00:00 until stopping succeeds. Screen readers do not announce every tick.
+
 - Voice startup requires only requester_id and channel_name. Do not create a shopping session, cart, local ledger or database.
 - Preserve RtcTokenBuilder.buildTokenWithRtm, RTM identity/UID matching and RTM readiness before RTC/toolkit mount.
 - Keep the isReady StrictMode guard and stable RTC client ref. useJoin owns leave, the microphone hook owns track cleanup, and usePublish owns publication. Never manually close a hook-owned track or disable React StrictMode.

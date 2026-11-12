@@ -20,6 +20,12 @@ The Agent constructor configures fillerWords with enable=true, a fixed_time trig
 
 GET /api/catalog/search and GET /api/catalog/product remain available for diagnostics and HTTP regression checks. The public page does not call these routes. lib/shopify-catalog.ts validates inputs, injects the UCP profile and buyer-selected market context, applies a 12-second deadline and normalizes fresh product data. Both routes and upstream fetches use no-store.
 
+## Session time limit
+
+LandingPage enforces a ten-minute browser session deadline from successful startup. It reuses the manual stop flow, checks wall time every second and on focus/visibility changes, and retries failed stops every five seconds. Successful stop retains the transcript and shows a timeout notice; starting again resets the deadline. Effect cleanup removes the timer/listeners. This is not a server-side usage cap: closed pages, suspended devices and network failures can delay Agent shutdown.
+
+The conversation header shows a small, muted countdown (10:00 left) immediately before the connection status. The last minute is highlighted, with an automatic-stop notice for screen readers. At the deadline the timer stays at 00:00 until stopping succeeds. Screen readers do not announce every tick.
+
 ## State and failures
 
 Only current-page rendering and conversation state are retained. There is no catalog cache, database or persistent business session. Invalid Catalog input returns 400; 429 preserves Retry-After; upstream/malformed responses return 502 and deadline expiry returns 504. Errors never fall back to fictional products.

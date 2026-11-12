@@ -32,6 +32,8 @@ Open http://localhost:3000. Open FAQ from the header or choose Start voice shopp
 
 The Agent connects to Shopify's official Global Catalog MCP with a read-only allowlist. It searches current offers and checks a candidate before recommending it. Built-in static filler words acknowledge response waits after 1500 ms, including tool waits, without an additional LLM request. The page shows the shared voice workspace; FAQ opens on demand in a right-side drawer. Legacy simulated cart/order APIs remain disabled.
 
+Each session ends automatically after 10 minutes; choose Start again to continue.
+
 ## 7. Customize for Your Business
 
 Edit lib/agent-config.ts for conversation flow, lib/agent-tools.ts for the HTTP-to-MCP allowlist, lib/shopify-config.ts for the profile/token and components/ScenarioFaq.tsx for usage answers. Keep product data fresh, buyer-confirmed delivery country and currency consistent across tools, currency minor units correct, and purchase completion on merchant websites. A budget is optional. Compare only offers in the confirmed currency; do not invent conversion rates or guarantee market coverage.

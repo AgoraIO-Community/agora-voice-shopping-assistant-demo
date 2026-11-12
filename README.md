@@ -4,6 +4,8 @@
 
 A voice shopping assistant demo for searching and comparing products across Shopify stores, built with Agora Conversational AI.
 
+**[Try the live demo →](https://agora-voice-shopping-assistant-demo.vercel.app)**
+
 **[Explore more voice AI demos on Agora Recipes →](https://recipes.agora.io/)**
 
 [![Agora](https://img.shields.io/badge/Voice_AI-Agora-099DFD)](https://www.agora.io/en/products/conversational-ai-engine/)
@@ -72,6 +74,8 @@ pnpm run dev
 ```
 
 Open [localhost:3000](http://localhost:3000), choose **Start voice shopping**, and allow microphone access. Use **End session** to finish.
+
+Each session ends automatically after 10 minutes; choose Start again to continue.
 
 <a id="deployment"></a>
 

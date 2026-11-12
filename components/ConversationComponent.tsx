@@ -102,6 +102,7 @@ export default function ConversationComponent({
   onTokenWillExpire,
   onEndConversation,
   ending = false,
+  sessionTimeRemaining = 600,
   startupError,
   feedback,
   onActivityChange,
@@ -685,13 +686,33 @@ export default function ConversationComponent({
     <QuickstartConversationLayout
       feedback={feedback}
       statusPanel={
-        <ConnectionStatusPanel
-          connectionState={connectionState}
-          connectionSeverity={connectionSeverity}
-          connectionIssues={connectionIssues}
-          isOpen={isConnectionDetailsOpen}
-          onToggle={() => setIsConnectionDetailsOpen((open) => !open)}
-        />
+        <div className="demo-session-meta">
+          <span
+            className="demo-session-timer"
+            data-urgent={sessionTimeRemaining <= 60}
+            role="timer"
+            aria-label="Time remaining"
+            aria-live="off"
+            title="This session ends automatically after 10 minutes."
+          >
+            {Math.floor(sessionTimeRemaining / 60).toString().padStart(2, '0')}:
+            {(sessionTimeRemaining % 60).toString().padStart(2, '0')} left
+          </span>
+          {sessionTimeRemaining <= 60 && (
+            <span className="sr-only" role="status">
+              {sessionTimeRemaining === 0
+                ? 'Time limit reached. This session is ending.'
+                : 'Session ending soon. It will stop automatically at 00:00.'}
+            </span>
+          )}
+          <ConnectionStatusPanel
+            connectionState={connectionState}
+            connectionSeverity={connectionSeverity}
+            connectionIssues={connectionIssues}
+            isOpen={isConnectionDetailsOpen}
+            onToggle={() => setIsConnectionDetailsOpen((open) => !open)}
+          />
+        </div>
       }
       transcriptPanel={
         <>

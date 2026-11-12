@@ -37,6 +37,7 @@ export interface ConversationComponentProps {
   onTokenWillExpire: (uid: string) => Promise<AgoraRenewalTokens>;
   onEndConversation: () => void | Promise<void>;
   ending?: boolean;
+  sessionTimeRemaining?: number;
   startupError?: string;
   feedback?: ReactNode;
   onActivityChange?: (snapshot: AgentSignalSnapshot) => void;

@@ -175,6 +175,24 @@ button:disabled {
   margin-top: 16px;
   z-index: 10;
 }
+.demo-session-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  max-width: 100%;
+}
+.demo-session-timer {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.demo-session-timer[data-urgent='true'] {
+  color: #d4d4d8;
+}
 .demo-dock-host .ag-voice-dock {
   width: 100%;
 }

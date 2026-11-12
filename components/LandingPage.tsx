@@ -67,6 +67,8 @@ const AgoraProvider = dynamic(
   { ssr: false },
 );
 
+const SESSION_LIMIT_MS = 10 * 60 * 1000;
+
 export default function LandingPage() {
   const scenario = getScenarioPresentation();
   const [showConversation, setShowConversation] = useState(false);
@@ -94,6 +96,8 @@ export default function LandingPage() {
   const [agentJoinError, setAgentJoinError] = useState(false);
   const [ending, setEnding] = useState(false);
   const [ended, setEnded] = useState(false);
+  const [endedByTimeout, setEndedByTimeout] = useState(false);
+  const [sessionTimeRemaining, setSessionTimeRemaining] = useState(SESSION_LIMIT_MS / 1000);
   const stopInFlight = useRef(false);
 
   const handleStartConversation = async () => {
@@ -107,6 +111,8 @@ export default function LandingPage() {
     });
     setOutcome('');
     setEnded(false);
+    setEndedByTimeout(false);
+    setSessionTimeRemaining(SESSION_LIMIT_MS / 1000);
     setError(null);
     setAgentJoinError(false);
 
@@ -235,7 +241,7 @@ export default function LandingPage() {
     [agoraData],
   );
 
-  const handleEndConversation = async () => {
+  const handleEndConversation = useCallback(async () => {
     if (stopInFlight.current) return;
     stopInFlight.current = true;
     setEnding(true);
@@ -275,6 +281,10 @@ export default function LandingPage() {
           },
         ].slice(-100),
       }));
+      setEndedByTimeout(
+        agoraData?.startedAt != null &&
+          Date.now() >= agoraData.startedAt + SESSION_LIMIT_MS,
+      );
       setEnded(true);
     } catch (err) {
       console.error('Error ending voice session:', err);
@@ -285,7 +295,32 @@ export default function LandingPage() {
       stopInFlight.current = false;
       setEnding(false);
     }
-  };
+  }, [agoraData, rtmClient]);
+
+  useEffect(() => {
+    if (!showConversation || agoraData?.startedAt == null) return;
+
+    const deadline = agoraData.startedAt + SESSION_LIMIT_MS;
+    let nextAttemptAt = deadline;
+    const checkDeadline = () => {
+      const now = Date.now();
+      setSessionTimeRemaining(Math.max(0, Math.ceil((deadline - now) / 1000)));
+      if (now < nextAttemptAt || stopInFlight.current) return;
+      // Retry failed stops without flooding the endpoint. Wall time also
+      // catches overdue sessions when a background tab becomes active again.
+      nextAttemptAt = now + 5000;
+      void handleEndConversation();
+    };
+    const timer = window.setInterval(checkDeadline, 1000);
+    document.addEventListener('visibilitychange', checkDeadline);
+    window.addEventListener('focus', checkDeadline);
+    checkDeadline();
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', checkDeadline);
+      window.removeEventListener('focus', checkDeadline);
+    };
+  }, [showConversation, agoraData, handleEndConversation]);
 
   return (
     <div className="demo-shell">
@@ -311,6 +346,11 @@ export default function LandingPage() {
             <div className="demo-session-heading">
               <div>
                 <h2>Session ended.</h2>
+                {endedByTimeout && (
+                  <p className="demo-note" role="status">
+                    Your 10-minute session has ended. Start again to continue.
+                  </p>
+                )}
               </div>
             </div>
             <ConversationPanel
@@ -357,6 +397,7 @@ export default function LandingPage() {
                   onActivityChange={setActivity}
                   onInspectionChange={setInspection}
                   ending={ending}
+                  sessionTimeRemaining={sessionTimeRemaining}
                   startupError={
                     agentJoinError
                       ? `Could not start ${scenario.name}. End this session and try again.`

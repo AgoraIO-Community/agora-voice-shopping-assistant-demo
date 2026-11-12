@@ -75,7 +75,7 @@ export function QuickstartPreCallCard({
           {isLoading ? 'Connecting…' : scenario.startLabel}
         </Button>
       </div>
-      <p className="demo-note">Microphone access required.</p>
+      <p className="demo-note">Microphone access required. Sessions end automatically after 10 minutes.</p>
       <p className="demo-note">{scenario.boundaryShort}</p>
       {error ? (
         <Alert variant="destructive">
