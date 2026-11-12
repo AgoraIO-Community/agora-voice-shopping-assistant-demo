@@ -691,12 +691,12 @@ export default function ConversationComponent({
             className="demo-session-timer"
             data-urgent={sessionTimeRemaining <= 60}
             role="timer"
-            aria-label="Time remaining"
+            aria-label="Demo ends in"
             aria-live="off"
             title="This session ends automatically after 10 minutes."
           >
-            {Math.floor(sessionTimeRemaining / 60).toString().padStart(2, '0')}:
-            {(sessionTimeRemaining % 60).toString().padStart(2, '0')} left
+            Demo ends in {Math.floor(sessionTimeRemaining / 60).toString().padStart(2, '0')}:
+            {(sessionTimeRemaining % 60).toString().padStart(2, '0')}
           </span>
           {sessionTimeRemaining <= 60 && (
             <span className="sr-only" role="status">
