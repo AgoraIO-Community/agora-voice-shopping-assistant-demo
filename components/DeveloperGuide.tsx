@@ -57,50 +57,66 @@ export function DeveloperGuide({
         <DialogHeader>
           <DialogTitle>Make this scenario your own</DialogTitle>
           <DialogDescription>
-            Start from the working {scenario.name} and follow the path that fits
-            how you build.
+            Integrate {scenario.name} with help from an AI coding assistant,
+            or follow the steps yourself.
           </DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue="source">
-          <TabsList variant="line" aria-label="Ways to develop this scenario">
-            <TabsTrigger value="source">Run locally</TabsTrigger>
-            <TabsTrigger value="skills">Build with AI</TabsTrigger>
+        <Tabs defaultValue="assistant">
+          <TabsList variant="line" aria-label="Ways to integrate this scenario">
+            <TabsTrigger value="assistant">Integrate with AI</TabsTrigger>
+            <TabsTrigger value="manual">Integrate it yourself</TabsTrigger>
             <TabsTrigger value="stack">Under the hood</TabsTrigger>
           </TabsList>
-          <TabsContent value="source" className="demo-build-content">
-            <h3>Run this scenario checkout</h3>
+          <TabsContent value="assistant" className="demo-build-content">
+            <h3>Let your AI coding assistant guide the integration</h3>
             <p>
-              Open this scenario’s local checkout before running these commands.
-              The Agora CLI handles sign-in and project credentials.
-              The source link below opens the upstream voice starter.
+              Copy this prompt into your AI coding assistant. It will use Agora
+              CLI to set up this scenario, guide you through project selection
+              and credentials, and help you run and test it locally.
             </p>
-            <CopyText text={d.runCommand} label="Copy setup commands" />
-            <pre tabIndex={0}>
-              <code>{d.runCommand}</code>
+            <CopyText text={d.assistantPrompt} label="Copy integration prompt" />
+            <pre tabIndex={0} className="demo-integration-prompt">
+              <code>{d.assistantPrompt}</code>
             </pre>
-            <p className="demo-note">
-              Install the Agora CLI first. Replace &lt;your-project&gt; with a
-              project you can use.
-            </p>
             <a href={d.cliUrl} target="_blank" rel="noopener noreferrer">
-              CLI installation and setup <ArrowUpRight aria-hidden="true" />
+              About Agora CLI <ArrowUpRight aria-hidden="true" />
             </a>
           </TabsContent>
-          <TabsContent value="skills" className="demo-build-content">
-            <h3>Give your coding assistant the Agora context</h3>
+          <TabsContent value="manual" className="demo-build-content">
+            <h3>Set up and integrate the scenario yourself</h3>
             <p>
-              Agora Skills provide official quickstarts and CLI workflows.
-              Install them, then use this prompt to adapt the scenario.
+              Follow these steps to create a working app, then adapt its
+              conversation and UI for your product. Requires Node.js 24,
+              pnpm 9.15.9, and an Agora project with Conversational AI enabled.
             </p>
-            <CopyText text={d.skillsCommand} label="Copy install command" />
-            <pre>
-              <code>{d.skillsCommand}</code>
-            </pre>
-            <CopyText text={d.assistantPrompt} label="Copy assistant prompt" />
-            <blockquote>{d.assistantPrompt}</blockquote>
-            <a href={d.skillsUrl} target="_blank" rel="noopener noreferrer">
-              Explore Agora Skills <ArrowUpRight aria-hidden="true" />
-            </a>
+            <h3>1. Create the app</h3>
+            <CopyText text={d.createCommand} label="Copy create commands" />
+            <pre tabIndex={0}><code>{d.createCommand}</code></pre>
+            <h3>2. Configure credentials</h3>
+            <p>
+              Copy <code>env.local.example</code> to <code>.env.local</code> and
+              enter your Agora project credentials. Keep the App Certificate
+              server-side.
+            </p>
+            <CopyText text="cp env.local.example .env.local" label="Copy configuration command" />
+            <pre tabIndex={0}><code>cp env.local.example .env.local</code></pre>
+            <p>Set these values in <code>.env.local</code>:</p>
+            <pre tabIndex={0}><code>{`NEXT_PUBLIC_AGORA_APP_ID=your_app_id
+NEXT_AGORA_APP_CERTIFICATE=your_app_certificate`}</code></pre>
+            {d.configurationNote && <p>{d.configurationNote}</p>}
+            <h3>3. Install and start</h3>
+            <CopyText text={d.runCommand} label="Copy startup commands" />
+            <pre tabIndex={0}><code>{d.runCommand}</code></pre>
+            <p>
+              Open the local URL shown in your terminal, allow microphone
+              access, and try:
+            </p>
+            <blockquote>{d.testRequest}</blockquote>
+            <p>
+              Use Under the hood to find the conversation, model and UI files
+              to customize. For integration details, follow the Build guide below.
+              {scenario.boundaryShort}
+            </p>
           </TabsContent>
           <TabsContent value="stack" className="demo-build-content">
             <h3>From your application to a voice response</h3>
@@ -143,7 +159,7 @@ export function DeveloperGuide({
           aria-label="Agora developer resources"
         >
           <a href={d.sourceUrl} target="_blank" rel="noopener noreferrer">
-            Source (pending) <ArrowUpRight aria-hidden="true" />
+            Source <ArrowUpRight aria-hidden="true" />
           </a>
           <a href={d.docsUrl} target="_blank" rel="noopener noreferrer">
             Build guide <ArrowUpRight aria-hidden="true" />

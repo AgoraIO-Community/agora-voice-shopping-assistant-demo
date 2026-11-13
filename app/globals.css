@@ -273,6 +273,10 @@ button:disabled {
   overflow: auto;
   max-width: 100%;
 }
+.demo-build-content .demo-integration-prompt {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .demo-build-content blockquote {
   background: var(--card);
   border-radius: 8px;

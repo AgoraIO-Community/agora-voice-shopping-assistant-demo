@@ -13,12 +13,13 @@ export interface ScenarioPresentation {
     sourceUrl: string;
     runCommand: string;
     assistantPrompt: string;
-    skillsCommand: string;
+    createCommand: string;
+    testRequest: string;
+    configurationNote?: string;
     docsUrl: string;
     sdkUrl: string;
     consoleUrl: string;
     cliUrl: string;
-    skillsUrl: string;
     extensionPoints: { title: string; path: string }[];
   };
 }
