@@ -59,7 +59,7 @@ npx agora-voice-shopping-assistant-demo@latest my-app
 cd my-app
 ```
 
-続いて、以下の手順で依存関係と認証情報を設定してください。作成先は存在しないか、空のディレクトリである必要があります。生成ツールは依存関係のインストールや認証情報の設定を行いません。`@latest` は npm の最新公開版を使用するため、リポジトリと異なる場合があります。メンテナー向けの説明は [npm リリースと Vercel 自動化（英語）](docs/npm-release.md) を参照してください。
+続いて、以下の手順で依存関係と認証情報を設定してください。作成先は存在しないか、空のディレクトリである必要があります。生成ツールは依存関係のインストールや認証情報の設定を行いません。`@latest` は npm の最新公開版を使用するため、リポジトリと異なる場合があります。メンテナー向けの説明は [npm リリースと Vercel 自動化（英語）](https://github.com/AgoraIO-Community/agora-voice-shopping-assistant-demo/blob/main/docs/npm-release.md) を参照してください。
 
 ### ローカル実行
 
@@ -110,6 +110,8 @@ pnpm run dev
 1. ボタンからリポジトリを自分の Git アカウントにクローンし、Vercel に取り込みます。
 2. **Next.js** と Node.js 24 を選びます。
 3. **Environment Variables** で `NEXT_PUBLIC_AGORA_APP_ID` と `NEXT_AGORA_APP_CERTIFICATE` を設定してデプロイします。
+
+Community の公式デモは、GitHub Actions で検証に成功した後に本番へデプロイします。README やドキュメントのみの変更ではデプロイせず、`main` のアプリ、静的アセット、依存関係、ビルド設定の変更で実行します。認証情報、パスフィルター、手動デプロイは[メンテナー向けデプロイ設定（英語）](https://github.com/AgoraIO-Community/agora-voice-shopping-assistant-demo/blob/main/docs/npm-release.md#production-website-deployment-with-github-actions)を参照してください。本番デプロイの workflow は Community リポジトリでのみ実行します。
 
 <a id="how-it-works"></a>
 

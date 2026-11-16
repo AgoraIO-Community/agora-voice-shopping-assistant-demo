@@ -8,7 +8,7 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
 const rootFiles = new Set(['package.json', 'pnpm-lock.yaml', 'env.local.example', 'README.md', 'README.zh-CN.md', 'README.ja.md', 'AGENTS.md', 'CLAUDE.md', 'ARCHITECTURE.md', 'RECIPE.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'Dockerfile', '.dockerignore', '.gitignore', '.gitattributes', '.npmrc', '.nvmrc', '.vercelignore', 'components.json', 'eslint.config.mjs', 'next.config.mjs', 'postcss.config.mjs', 'tsconfig.json', 'vercel.json']);
 const roots = new Set(['app', 'components', 'lib', 'types', 'styles', 'public', 'scripts']);
-const ownedFiles = ['scripts/npm/create.mjs', 'scripts/npm/build.mjs', 'scripts/npm/test.mjs', '.github/workflows/npm-release.yml', 'docs/npm-release.md'];
+const workflows = new Set(['.github/workflows/ci.yml', '.github/workflows/docker.yml']);
 
 try {
   if (Number(process.versions.node.split('.')[0]) !== 24) throw new Error('Build with Node.js 24.');
@@ -25,9 +25,10 @@ try {
     git('merge-base', '--is-ancestor', sourceCommit, 'origin/main');
   }
   const tracked = git('ls-files', '-z').split('\0').filter(Boolean);
-  const selected = [...new Set([...tracked, ...ownedFiles])].filter(file => {
+  const selected = tracked.filter(file => {
     const parts = file.split('/');
-    return (rootFiles.has(file) || roots.has(parts[0]) || file.startsWith('.github/workflows/') || file === 'docs/recipe-cover.webp' || file === 'docs/npm-release.md') &&
+    return (rootFiles.has(file) || roots.has(parts[0]) || workflows.has(file) || file === 'docs/recipe-cover.webp') &&
+      !file.startsWith('scripts/npm/') &&
       !parts.some(part => /^(?:\.env(?:\.|$)|node_modules$|\.git$|\.next(?:-|$)|\.vercel$|\.pnpm-store$|\.scenario-data$|evidence$|coverage$|__screenshots__$)/i.test(part)) &&
       !/\.(?:log|tgz|tsbuildinfo|woff2?|ttf|otf)$/i.test(file);
   }).sort();
@@ -44,7 +45,19 @@ try {
       }
       const info = await fs.stat(current);
       if (!info.isFile()) throw new Error('Template entry is not a file: ' + file);
-      const bytes = await fs.readFile(current);
+      let bytes = await fs.readFile(current);
+      if (file === 'package.json') {
+        const application = JSON.parse(bytes.toString());
+        delete application.scripts['npm:build'];
+        delete application.scripts['npm:test'];
+        bytes = Buffer.from(JSON.stringify(application, null, 2) + '\n');
+      }
+      if (file === '.github/workflows/ci.yml') {
+        const source = bytes.toString();
+        const releaseCheck = '      - run: pnpm run npm:test\n';
+        if (!source.includes(releaseCheck)) throw new Error('Update the template CI transformation for the upstream scaffold test step.');
+        bytes = Buffer.from(source.replace(releaseCheck, ''));
+      }
       if (file === 'env.local.example' && bytes.toString().split(/\r?\n/).some(line => /^\s*[A-Za-z_][A-Za-z0-9_]*\s*=\s*\S/.test(line))) throw new Error('Environment example must have blank values.');
       const stored = file.split('/').map(part => {
         if (part.startsWith('__dot__')) throw new Error('Reserved template filename: ' + file);

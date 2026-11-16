@@ -50,7 +50,7 @@ npx agora-voice-shopping-assistant-demo@latest my-app
 cd my-app
 ```
 
-Then follow the installation and configuration steps below. The destination must be new or empty; the creator does not install dependencies or configure credentials. `@latest` uses the latest published version, which may differ from this repository. Maintainers: see [npm releases and Vercel automation](docs/npm-release.md).
+Then follow the installation and configuration steps below. The destination must be new or empty; the creator does not install dependencies or configure credentials. `@latest` uses the latest published version, which may differ from this repository. Maintainers: see [npm releases and Vercel automation](https://github.com/AgoraIO-Community/agora-voice-shopping-assistant-demo/blob/main/docs/npm-release.md).
 
 ### Run Locally
 
@@ -97,6 +97,8 @@ Each session ends automatically after 10 minutes; choose Start again to continue
 1. Click the button to clone this repository into your Git account and import it into Vercel.
 2. Select **Next.js** and Node.js 24.
 3. Add `NEXT_PUBLIC_AGORA_APP_ID` and `NEXT_AGORA_APP_CERTIFICATE` under **Environment Variables**, then deploy.
+
+The maintained Community demo uses GitHub Actions for production deployment after verification. README/documentation-only updates do not deploy; application, asset, dependency and build configuration changes on `main` do. See [maintainer deployment setup](https://github.com/AgoraIO-Community/agora-voice-shopping-assistant-demo/blob/main/docs/npm-release.md#production-website-deployment-with-github-actions) for credentials, path filters and manual deployment. The production workflow runs only in the Community repository.
 
 ## How It Works
 

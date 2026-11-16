@@ -59,7 +59,7 @@ npx agora-voice-shopping-assistant-demo@latest my-app
 cd my-app
 ```
 
-然后按照下方步骤安装依赖并配置凭据。目标目录必须不存在或为空；生成器不会安装依赖或配置凭据。`@latest` 使用 npm 最新已发布版本，可能与仓库不同。维护者请参阅 [npm 发布与 Vercel 自动化说明（英文）](docs/npm-release.md)。
+然后按照下方步骤安装依赖并配置凭据。目标目录必须不存在或为空；生成器不会安装依赖或配置凭据。`@latest` 使用 npm 最新已发布版本，可能与仓库不同。维护者请参阅 [npm 发布与 Vercel 自动化说明（英文）](https://github.com/AgoraIO-Community/agora-voice-shopping-assistant-demo/blob/main/docs/npm-release.md)。
 
 ### 本地运行
 
@@ -110,6 +110,8 @@ pnpm run dev
 1. 点击按钮，将本仓库克隆到你的 Git 账户并导入 Vercel。
 2. 选择 **Next.js** 和 Node.js 24。
 3. 在 **Environment Variables** 中填写 `NEXT_PUBLIC_AGORA_APP_ID` 和 `NEXT_AGORA_APP_CERTIFICATE`，然后部署。
+
+Community 官方演示站通过 GitHub Actions 在验证通过后部署生产环境。仅修改 README 或文档不会部署；`main` 上的应用、静态资源、依赖和构建配置变更会触发部署。凭据、路径过滤和手动部署详见[维护者部署说明（英文）](https://github.com/AgoraIO-Community/agora-voice-shopping-assistant-demo/blob/main/docs/npm-release.md#production-website-deployment-with-github-actions)。生产部署 workflow 仅在 Community 仓库运行。
 
 <a id="how-it-works"></a>
 

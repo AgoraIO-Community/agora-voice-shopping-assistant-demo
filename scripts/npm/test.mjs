@@ -31,17 +31,42 @@ try {
   const packageManifest = JSON.parse(execFileSync('tar', ['-xOf', tarball, 'package/package.json'], { encoding: 'utf8' }));
   assert.equal(packageManifest.private, undefined);
   assert.equal(packageManifest.version, pkg.version);
+  const bundledPaths = manifest.files.map(file => file.path);
+  assert.deepEqual(bundledPaths.filter(file => file.startsWith('.github/workflows/')).sort(), ['.github/workflows/ci.yml', '.github/workflows/docker.yml']);
+  assert.ok(!bundledPaths.some(file => file.startsWith('scripts/npm/') || file === 'docs/npm-release.md'), 'Do not bundle upstream release tooling or maintainer-only documentation.');
   for (const file of manifest.files) {
     const bytes = await fs.readFile(path.join(generated, file.path));
     assert.equal(createHash('sha256').update(bytes).digest('hex'), file.sha256, file.path);
-    if (artifactIndex < 0) assert.deepEqual(bytes, await fs.readFile(path.join(root, file.path)), file.path);
+    if (artifactIndex < 0 && !['package.json', '.github/workflows/ci.yml'].includes(file.path)) assert.deepEqual(bytes, await fs.readFile(path.join(root, file.path)), file.path);
     assert.equal((await fs.stat(path.join(generated, file.path))).mode & 0o777, file.mode, file.path);
     assert.ok(!file.path.split('/').some(part => /^(?:\.env(?:\.|$)|node_modules$|\.next$|\.vercel$|\.git$)/.test(part)), file.path);
   }
   for (const file of ['.gitignore', '.npmrc', '.github/workflows/ci.yml', 'README.zh-CN.md', 'README.ja.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'pnpm-lock.yaml', 'env.local.example']) {
     assert.ok(manifest.files.some(entry => entry.path === file), 'Missing ' + file);
   }
-  assert.equal(JSON.parse(await fs.readFile(path.join(generated, 'package.json'), 'utf8')).private, true);
+  const generatedPackage = JSON.parse(await fs.readFile(path.join(generated, 'package.json'), 'utf8'));
+  assert.equal(generatedPackage.private, true);
+  assert.ok(!Object.keys(generatedPackage.scripts).some(name => name.startsWith('npm:')));
+  assert.equal(generatedPackage.scripts.verify, pkg.scripts.verify);
+  const generatedCi = await fs.readFile(path.join(generated, '.github/workflows/ci.yml'), 'utf8');
+  assert.match(generatedCi, /pnpm run verify/);
+  assert.doesNotMatch(generatedCi, /pnpm run npm:/);
+  if (artifactIndex < 0) {
+    const { 'npm:build': _build, 'npm:test': _test, ...applicationScripts } = pkg.scripts;
+    assert.deepEqual(generatedPackage, { ...pkg, scripts: applicationScripts });
+    assert.equal(generatedCi, (await fs.readFile(path.join(root, '.github/workflows/ci.yml'), 'utf8')).replace('      - run: pnpm run npm:test\n', ''));
+  }
+  for (const file of ['scripts/npm', 'docs/npm-release.md', '.github/workflows/npm-release.yml', '.github/workflows/deploy.yml']) {
+    await assert.rejects(fs.stat(path.join(generated, file)), { code: 'ENOENT' });
+  }
+  for (const document of ['README.md', 'README.zh-CN.md', 'README.ja.md', 'AGENTS.md', 'ARCHITECTURE.md', 'RECIPE.md', 'THIRD_PARTY_NOTICES.md']) {
+    const text = await fs.readFile(path.join(generated, document), 'utf8');
+    for (const [, target] of text.matchAll(/\[[^\]\n]*\]\(([^)\s]+)\)/g)) {
+      if (/^(?:https?:|mailto:|#)/.test(target)) continue;
+      const destination = target.split('#')[0];
+      await fs.stat(path.resolve(generated, path.dirname(document), destination));
+    }
+  }
   assert.match(run(generated).stderr, /new or empty/);
   assert.deepEqual(await fs.readFile(path.join(generated, 'README.md')), await fs.readFile(path.join(root, 'README.md')));
   await fs.mkdir(path.join(temp, 'empty'));
