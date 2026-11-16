@@ -41,6 +41,17 @@ A voice shopping assistant demo for searching and comparing products across Shop
 
 ## Getting Started
 
+### Create with npm
+
+Use Node.js 24 to create a complete editable project:
+
+```bash
+npx agora-voice-shopping-assistant-demo@latest my-app
+cd my-app
+```
+
+Then follow the installation and configuration steps below. The destination must be new or empty; the creator does not install dependencies or configure credentials. `@latest` uses the latest published version, which may differ from this repository. Maintainers: see [npm releases and Vercel automation](docs/npm-release.md).
+
 ### Run Locally
 
 You need Node.js 24, pnpm 9.15.9, and an [Agora project](https://console.agora.io/) with Conversational AI enabled.

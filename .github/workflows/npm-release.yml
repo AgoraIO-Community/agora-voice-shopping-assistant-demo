@@ -1,0 +1,64 @@
+name: Publish npm scaffold
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.repository == 'AgoraIO-Community/agora-voice-shopping-assistant-demo'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Build the exact tagged source
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: node scripts/npm/build.mjs --tag "$RELEASE_TAG"
+      - name: Test the tarball and generated application
+        run: node scripts/npm/test.mjs --tarball "dist/$(node -p "const p = require('./package.json'); p.name + '-' + p.version + '.tgz'")" --application
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-scaffold
+          path: dist/*.tgz
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+      - name: Install npm with Trusted Publishing support
+        run: npm install --global npm@11
+      - uses: actions/download-artifact@v4
+        with:
+          name: npm-scaffold
+          path: dist
+      - name: Publish the verified tarball with OIDC
+        run: |
+          shopt -s nullglob
+          packages=(dist/*.tgz)
+          test "${#packages[@]}" -eq 1
+          npm publish "${packages[0]}" --access public --provenance --ignore-scripts

@@ -50,6 +50,17 @@
 
 <a id="run-locally"></a>
 
+### 使用 npm 创建项目
+
+使用 Node.js 24 创建完整、可编辑的项目：
+
+```bash
+npx agora-voice-shopping-assistant-demo@latest my-app
+cd my-app
+```
+
+然后按照下方步骤安装依赖并配置凭据。目标目录必须不存在或为空；生成器不会安装依赖或配置凭据。`@latest` 使用 npm 最新已发布版本，可能与仓库不同。维护者请参阅 [npm 发布与 Vercel 自动化说明（英文）](docs/npm-release.md)。
+
 ### 本地运行
 
 需要 Node.js 24、pnpm 9.15.9，以及已启用 Conversational AI 的 [Agora 项目](https://console.agora.io/)。

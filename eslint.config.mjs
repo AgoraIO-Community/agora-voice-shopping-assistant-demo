@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint';
 
 /** @type {import('eslint').Linter.Config[]} */
 const config = [
-  { ignores: ['.next-*/**'] },
+  { ignores: ['.next-*/**', 'dist/**'] },
   ...coreWebVitals,
   {
     plugins: {

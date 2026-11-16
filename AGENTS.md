@@ -102,3 +102,7 @@ Local edits and verification do not authorize a commit. A commit does not author
 ## Typography
 
 Use the installed Helvetica Neue/sans-serif fallback and keep the shared font tokens consistent with global/form-control styles. Do not bundle or download font assets. Preserve UI source attribution and other third-party notices. Check desktop/mobile rendering after typography changes.
+
+## npm scaffold releases
+
+The application remains private. `pnpm run npm:build` creates the separate public creator package; `pnpm run npm:test` tests the installed tarball offline. Packaging and the CLI live in scripts/npm and require no external workspace. See [release setup](docs/npm-release.md) for exact tag validation, npm Trusted Publishing and Vercel Git integration. Do not publish or change remote configuration without separate authorization.
