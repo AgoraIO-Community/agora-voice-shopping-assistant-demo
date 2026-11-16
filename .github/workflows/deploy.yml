@@ -1,0 +1,92 @@
+name: Deploy production website
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'components/**'
+      - 'lib/**'
+      - 'types/**'
+      - 'styles/**'
+      - 'public/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.npmrc'
+      - '.nvmrc'
+      - 'next.config.*'
+      - 'next-env.d.ts'
+      - 'tsconfig.json'
+      - 'postcss.config.*'
+      - 'tailwind.config.*'
+      - 'eslint.config.*'
+      - 'vercel.json'
+      - '.vercelignore'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vercel-production
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.repository == 'AgoraIO-Community/agora-voice-shopping-assistant-demo' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check deployment configuration
+        run: |
+          for name in VERCEL_ORG_ID VERCEL_PROJECT_ID VERCEL_TOKEN; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing Actions configuration: $name"
+              exit 1
+            fi
+          done
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Install Vercel CLI
+        run: npm install --global vercel@58.4.4
+      - name: Pull production project settings and environment
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - name: Build production output
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+      - name: Deploy production output
+        id: publish
+        run: |
+          deployment_url=$(vercel deploy --prebuilt --prod --yes --token="$VERCEL_TOKEN")
+          echo "url=$deployment_url" >> "$GITHUB_OUTPUT"
+      - name: Check the public production page
+        run: curl --fail --silent --show-error --location --retry 3 --retry-delay 5 --max-time 60 --output /dev/null https://agora-voice-shopping-assistant-demo.vercel.app
+      - name: Record deployment
+        env:
+          DEPLOYMENT_URL: ${{ steps.publish.outputs.url }}
+        run: |
+          {
+            echo '### Voice Shopping production deployment'
+            echo "Source revision: $GITHUB_SHA"
+            echo "Deployment: $DEPLOYMENT_URL"
+            echo 'Production: https://agora-voice-shopping-assistant-demo.vercel.app'
+            echo 'Public page HTTP check passed. Live voice and Shopify queries require separate acceptance.'
+          } >> "$GITHUB_STEP_SUMMARY"
