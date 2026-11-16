@@ -26,3 +26,4 @@ jobs:
         run: |
           printf 'NEXT_PUBLIC_AGORA_APP_ID=0123456789abcdef0123456789abcdef\nNEXT_AGORA_APP_CERTIFICATE=fedcba9876543210fedcba9876543210\n' > .env.local
       - run: pnpm run verify
+      - run: pnpm run npm:test

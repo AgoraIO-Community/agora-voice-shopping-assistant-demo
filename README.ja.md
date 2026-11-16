@@ -50,6 +50,17 @@ Agora Conversational AI を使った音声ショッピングアシスタント�
 
 <a id="run-locally"></a>
 
+### npm でプロジェクトを作成
+
+Node.js 24 で編集可能なプロジェクト全体を作成します。
+
+```bash
+npx agora-voice-shopping-assistant-demo@latest my-app
+cd my-app
+```
+
+続いて、以下の手順で依存関係と認証情報を設定してください。作成先は存在しないか、空のディレクトリである必要があります。生成ツールは依存関係のインストールや認証情報の設定を行いません。`@latest` は npm の最新公開版を使用するため、リポジトリと異なる場合があります。メンテナー向けの説明は [npm リリースと Vercel 自動化（英語）](docs/npm-release.md) を参照してください。
+
 ### ローカル実行
 
 Node.js 24、pnpm 9.15.9、Conversational AI を有効にした [Agora プロジェクト](https://console.agora.io/)が必要です。
