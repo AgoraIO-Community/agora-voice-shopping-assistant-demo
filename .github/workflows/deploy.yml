@@ -59,23 +59,16 @@ jobs:
               exit 1
             fi
           done
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9.15.9
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: pnpm
       - name: Install Vercel CLI
         run: npm install --global vercel@58.4.4
-      - name: Pull production project settings and environment
-        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-      - name: Build production output
-        run: vercel build --prod --token="$VERCEL_TOKEN"
-      - name: Deploy production output
+      - name: Build and deploy production on Vercel
         id: publish
         run: |
-          deployment_url=$(vercel deploy --prebuilt --prod --yes --token="$VERCEL_TOKEN")
+          deployment_url=$(vercel deploy --prod --yes --token="$VERCEL_TOKEN" \
+            --meta "sourceCommit=$GITHUB_SHA" --meta "sourceRepo=$GITHUB_REPOSITORY")
           echo "url=$deployment_url" >> "$GITHUB_OUTPUT"
       - name: Check the public production page
         run: curl --fail --silent --show-error --location --retry 3 --retry-delay 5 --max-time 60 --output /dev/null https://agora-voice-shopping-assistant-demo.vercel.app
