@@ -1,4 +1,4 @@
-name: Deploy website
+name: Deploy production website
 
 on:
   push:
@@ -26,26 +26,17 @@ on:
       - '.github/workflows/ci.yml'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
-    inputs:
-      target:
-        description: Deployment environment (production requires main)
-        type: choice
-        required: true
-        default: preview
-        options:
-          - preview
-          - production
 
 permissions:
   contents: read
 
 concurrency:
-  group: vercel-${{ github.event_name == 'push' && 'production' || inputs.target || 'preview' }}
+  group: vercel-production
   cancel-in-progress: false
 
 jobs:
   verify:
-    if: github.repository == 'AgoraIO-Community/agora-voice-shopping-assistant-demo' && (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
+    if: github.repository == 'AgoraIO-Community/agora-voice-shopping-assistant-demo' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/ci.yml
 
   deploy:
@@ -53,7 +44,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      DEPLOYMENT_TARGET: ${{ github.event_name == 'push' && 'production' || inputs.target || 'preview' }}
       VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -64,16 +54,6 @@ jobs:
           persist-credentials: false
       - name: Check deployment configuration
         run: |
-          case "$DEPLOYMENT_TARGET" in
-            preview) ;;
-            production)
-              if [ "$GITHUB_REF" != 'refs/heads/main' ]; then
-                echo '::error::Production deployment requires main; select preview for feature branches'
-                exit 1
-              fi
-              ;;
-            *) echo '::error::Unsupported deployment target'; exit 1 ;;
-          esac
           for name in VERCEL_ORG_ID VERCEL_PROJECT_ID VERCEL_TOKEN NEXT_PUBLIC_AGORA_APP_ID; do
             if [ -z "${!name}" ]; then
               echo "::error::Missing Actions configuration: $name"
@@ -107,11 +87,8 @@ jobs:
             settings,
           }, null, 2));
           NODE
-      - name: Build deployment output
-        run: |
-          build_args=(--standalone)
-          if [ "$DEPLOYMENT_TARGET" = production ]; then build_args+=(--prod); fi
-          vercel build "${build_args[@]}" --token="$VERCEL_TOKEN"
+      - name: Build production output
+        run: vercel build --prod --standalone --token="$VERCEL_TOKEN"
       - name: Check that prebuilt output is self-contained
         run: |
           node <<'NODE'
@@ -135,12 +112,10 @@ jobs:
           assert.ok(functions > 0, 'Expected server functions in prebuilt output');
           console.log(`Verified ${functions} self-contained functions`);
           NODE
-      - name: Deploy prebuilt output
+      - name: Deploy production output
         id: publish
         run: |
-          deploy_args=(--prebuilt --yes)
-          if [ "$DEPLOYMENT_TARGET" = production ]; then deploy_args+=(--prod); fi
-          deployment_url=$(vercel deploy "${deploy_args[@]}" --token="$VERCEL_TOKEN" \
+          deployment_url=$(vercel deploy --prebuilt --prod --yes --token="$VERCEL_TOKEN" \
             --meta "sourceCommit=$GITHUB_SHA" --meta "sourceRepo=$GITHUB_REPOSITORY")
           echo "url=$deployment_url" >> "$GITHUB_OUTPUT"
       - name: Check the deployed page and server runtime
@@ -156,20 +131,15 @@ jobs:
             fi
           done
       - name: Check the public production page
-        if: env.DEPLOYMENT_TARGET == 'production'
         run: curl --fail --silent --show-error --location --retry 3 --retry-delay 5 --max-time 60 --output /dev/null https://agora-voice-shopping-assistant-demo.vercel.app
       - name: Record deployment
         env:
           DEPLOYMENT_URL: ${{ steps.publish.outputs.url }}
         run: |
           {
-            echo "### Voice Shopping $DEPLOYMENT_TARGET deployment"
+            echo '### Voice Shopping production deployment'
             echo "Source revision: $GITHUB_SHA"
             echo "Deployment: $DEPLOYMENT_URL"
-            if [ "$DEPLOYMENT_TARGET" = production ]; then
-              echo 'Production: https://agora-voice-shopping-assistant-demo.vercel.app'
-            else
-              echo 'Preview deployment; production domain was not promoted.'
-            fi
+            echo 'Production: https://agora-voice-shopping-assistant-demo.vercel.app'
             echo 'Deployed page and server token endpoint HTTP checks passed. Live voice and Shopify queries require separate acceptance.'
           } >> "$GITHUB_STEP_SUMMARY"
