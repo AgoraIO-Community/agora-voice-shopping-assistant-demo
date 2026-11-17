@@ -54,11 +54,12 @@ Configure these repository Actions settings:
 
 | Type | Name | Value |
 | --- | --- | --- |
-| Secret | `VERCEL_TOKEN` | A token permitted to pull production settings and deploy this project |
+| Secret | `VERCEL_TOKEN` | A token permitted to read and deploy this project |
+| Secret | `NEXT_PUBLIC_AGORA_APP_ID` | The actual public App ID matching the Vercel production project |
 | Variable | `VERCEL_ORG_ID` | `team_1NUfVK0FWLLLqcZADKEwMHDt` |
 | Variable | `VERCEL_PROJECT_ID` | `prj_HF0WW45Hz99swH424ah8KBgZJyQG` |
 
-Keep Agora credentials and optional Shopify credentials in Vercel's production environment. Do not copy them into the workflow or repository. `NEXT_PUBLIC_AGORA_APP_ID` is public and available at build time; the App Certificate remains server-only. The verification job uses synthetic credentials on its own runner; production is built on a separate runner from Vercel's production environment.
+Keep the real App Certificate and optional Shopify credentials in Vercel's production environment. Do not copy them into the workflow, repository or GitHub Secrets. `NEXT_PUBLIC_AGORA_APP_ID` is public and inlined into browser code at build time; supply its production value through the GitHub Secret named above and retain the matching value in Vercel for server runtime. The verification job uses synthetic credentials on its own runner. A separate deployment runner builds with the actual public App ID, then uploads prebuilt output. The real App Certificate is read only when server requests run on Vercel. Production environment values are not downloaded to Actions.
 
 ### Automatic and manual triggers
 
@@ -76,7 +77,11 @@ To deploy explicitly (including after changing production environment variables)
 
 ### Build, acceptance and recovery
 
-The workflow calls the existing CI workflow, including `pnpm run verify` and `pnpm run npm:test`. Deployment waits for successful verification, then uses Node.js 24, pnpm 9.15.9 and Vercel CLI 58.4.4 to pull production settings, build and deploy prebuilt output. Production runs are serialized and an active run is not canceled by a newer push. A newer queued run can replace an older pending run under GitHub's concurrency rules; runs are not a guaranteed FIFO queue.
+The workflow calls the existing CI workflow, including `pnpm run verify` and `pnpm run npm:test`. Deployment waits for successful verification, then uses Node.js 24, pnpm 9.15.9 and Vercel CLI 58.4.4. It generates `.vercel/project.json` from the project identifiers, `package.json` and the relevant `vercel.json` settings; no `vercel pull` is needed. It builds with `vercel build --prod` using the actual public App ID from GitHub, then uploads with `vercel deploy --prebuilt --prod`. The command waits for deployment completion; source commit and repository metadata identify the uploaded revision. Production runs are serialized and an active run is not canceled by a newer push. A newer queued run can replace an older pending run under GitHub's concurrency rules; runs are not a guaranteed FIFO queue.
+
+CLI 58.4.4's pull resolver requires team metadata; a project-scoped token can return project HTTP 200 but team HTTP 403 (`team_unauthorized`), causing pull to fail before building. Complete local settings let build skip that resolver. The deploy path, including prebuilt deployment, allows unavailable team metadata when the project lookup succeeds. A denied project lookup still fails. This does not establish the token's publication permissions; a live run must verify those separately.
+
+Keep repository build settings aligned with the Vercel project. The local file includes the framework, Node version, root directory and install/build/output settings; new relevant project settings need to be reflected in the configuration step. Runtime secrets remain owned by Vercel. Local build and deployment dry-run checks establish compatibility with synthetic project HTTP 200 / team HTTP 403 responses, not successful live publication.
 
 Missing configuration, verification failures and Vercel errors fail the workflow. Verification/build failures occur before publication and leave the existing production deployment in place. Once Vercel publishes successfully, the public production page must pass an HTTP check; the run summary records the source revision and deployment URL. HTTP success does not establish working voice, microphone, live Shopify queries or version equality at the public alias. Those need separate online acceptance.
 

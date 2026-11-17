@@ -47,13 +47,14 @@ jobs:
       VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      NEXT_PUBLIC_AGORA_APP_ID: ${{ secrets.NEXT_PUBLIC_AGORA_APP_ID }}
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Check deployment configuration
         run: |
-          for name in VERCEL_ORG_ID VERCEL_PROJECT_ID VERCEL_TOKEN; do
+          for name in VERCEL_ORG_ID VERCEL_PROJECT_ID VERCEL_TOKEN NEXT_PUBLIC_AGORA_APP_ID; do
             if [ -z "${!name}" ]; then
               echo "::error::Missing Actions configuration: $name"
               exit 1
@@ -68,14 +69,31 @@ jobs:
           cache: pnpm
       - name: Install Vercel CLI
         run: npm install --global vercel@58.4.4
-      - name: Pull production project settings and environment
-        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - name: Configure local project settings without pulling environment
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const config = JSON.parse(fs.readFileSync('vercel.json', 'utf8'));
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const settings = { nodeVersion: pkg.engines.node, rootDirectory: null };
+          for (const key of ['framework', 'buildCommand', 'devCommand', 'installCommand', 'outputDirectory']) {
+            if (config[key] !== undefined) settings[key] = config[key];
+          }
+          fs.mkdirSync('.vercel', { recursive: true });
+          fs.writeFileSync('.vercel/project.json', JSON.stringify({
+            projectId: process.env.VERCEL_PROJECT_ID,
+            orgId: process.env.VERCEL_ORG_ID,
+            projectName: pkg.name,
+            settings,
+          }, null, 2));
+          NODE
       - name: Build production output
         run: vercel build --prod --token="$VERCEL_TOKEN"
       - name: Deploy production output
         id: publish
         run: |
-          deployment_url=$(vercel deploy --prebuilt --prod --yes --token="$VERCEL_TOKEN")
+          deployment_url=$(vercel deploy --prebuilt --prod --yes --token="$VERCEL_TOKEN" \
+            --meta "sourceCommit=$GITHUB_SHA" --meta "sourceRepo=$GITHUB_REPOSITORY")
           echo "url=$deployment_url" >> "$GITHUB_OUTPUT"
       - name: Check the public production page
         run: curl --fail --silent --show-error --location --retry 3 --retry-delay 5 --max-time 60 --output /dev/null https://agora-voice-shopping-assistant-demo.vercel.app
