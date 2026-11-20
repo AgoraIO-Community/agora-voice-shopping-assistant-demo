@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import type { MouseEventHandler, ReactNode } from 'react';
 import { MessageSquareText, Mic, MicOff, PhoneOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +23,7 @@ export interface VoiceDockProps {
   conversationId: string;
   onToggleVoice: () => void;
   onEnd: () => void;
+  onBuild: MouseEventHandler<HTMLButtonElement>;
   onToggleConversation: () => void;
   devices: ReactNode;
   className?: string;
@@ -37,6 +38,7 @@ export function VoiceDock({
   conversationId,
   onToggleVoice,
   onEnd,
+  onBuild,
   onToggleConversation,
   devices,
   className,
@@ -61,6 +63,9 @@ export function VoiceDock({
         </span>
       </div>
       <div className="ag-action-row">
+        <div className="ag-dock-build">
+          <Button variant="outline" onClick={onBuild}>Build Now</Button>
+        </div>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -83,20 +88,6 @@ export function VoiceDock({
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              variant="ghost"
-              disabled={ending || state === 'ended'}
-              aria-label="End voice session"
-              onClick={onEnd}
-            >
-              <PhoneOff data-icon="inline-start" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>End session</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="icon"
               aria-label={micEnabled ? 'Mute microphone' : 'Unmute microphone'}
               disabled={disabled || ending || micPending || state === 'ended'}
               aria-pressed={micEnabled}
@@ -112,6 +103,21 @@ export function VoiceDock({
           <TooltipContent>
             {micEnabled ? 'Mute microphone' : 'Unmute microphone'}
           </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="ag-dock-end"
+              disabled={ending || state === 'ended'}
+              aria-label="End voice session"
+              onClick={onEnd}
+            >
+              <PhoneOff data-icon="inline-start" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>End session</TooltipContent>
         </Tooltip>
       </div>
     </GlassSurface>

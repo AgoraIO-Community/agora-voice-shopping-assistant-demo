@@ -1,5 +1,5 @@
 import type { RTMClient } from 'agora-rtm';
-import type { ReactNode } from 'react';
+import type { MouseEventHandler, ReactNode } from 'react';
 import type { AgentSignalSnapshot } from '@/lib/agent-signal';
 import type { InspectionSnapshot } from '@/lib/inspection';
 
@@ -36,6 +36,7 @@ export interface ConversationComponentProps {
   rtmClient: RTMClient;
   onTokenWillExpire: (uid: string) => Promise<AgoraRenewalTokens>;
   onEndConversation: () => void | Promise<void>;
+  onBuild: MouseEventHandler<HTMLButtonElement>;
   ending?: boolean;
   sessionTimeRemaining?: number;
   startupError?: string;

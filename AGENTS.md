@@ -52,7 +52,8 @@ The conversation header shows a small, muted countdown (Demo ends in 10:00) imme
 - Keep the isReady StrictMode guard and stable RTC client ref. useJoin owns leave, the microphone hook owns track cleanup, and usePublish owns publication. Never manually close a hook-owned track or disable React StrictMode.
 - Remap the toolkit's local uid=0 sentinel and retain interrupted turns.
 - Keep the public page focused on the shared voice workspace and usage FAQ. Do not add a manual product browser or direct callers to removed product/purchase controls.
-- Keep FAQ in the upper-right header beside Inspector and Build. Open it only on request in a right-side drawer; do not restore a page-footer FAQ or a secondary link next to the voice start action. Preserve keyboard focus, Escape/backdrop dismissal and internal scrolling.
+- Keep FAQ in the upper-right header beside Inspector. Open it only on request in a right-side drawer; do not restore a page-footer FAQ or a secondary link next to the voice start action. Preserve keyboard focus, Escape/backdrop dismissal and internal scrolling.
+- Place Build Now beside the start action, in the active voice dock and beside Start again after the session.
 - Use the platform fillerWords configuration for waiting feedback: static phrases after a 1500 ms response wait. Keep failureMessage separate. Tool waits reuse the same configuration; do not add a second LLM request to generate fillers.
 - Use synchronous HTTP tools for Shopify MCP: the native MCP validator rejects successful structuredContent-only replies that omit content. The adapter supplies UCP metadata; country and currency come from buyer-confirmed tool arguments. An empty price object represents an uncapped search. Preserve typed object substitution for price filters.
 - Keep Shopify access read-only. Do not add cart changes, ordering, payment collection, stock reservation, shipping, refunds or persistent shopping history.

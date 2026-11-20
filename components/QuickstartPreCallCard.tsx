@@ -48,12 +48,14 @@ export function QuickstartPreCallCard({
   disabled = false,
   error,
   onStart,
+  onBuild,
 }: {
   scenario: ScenarioPresentation;
   isLoading: boolean;
   disabled?: boolean;
   error: string | null;
   onStart: () => void;
+  onBuild: React.MouseEventHandler<HTMLButtonElement>;
 }) {
   return (
     <section className="demo-welcome">
@@ -74,9 +76,8 @@ export function QuickstartPreCallCard({
           )}
           {isLoading ? 'Connecting…' : scenario.startLabel}
         </Button>
+        <Button size="lg" variant="outline" onClick={onBuild}>Build Now</Button>
       </div>
-      <p className="demo-note">Microphone access required. Sessions end automatically after 10 minutes.</p>
-      <p className="demo-note">{scenario.boundaryShort}</p>
       {error ? (
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>

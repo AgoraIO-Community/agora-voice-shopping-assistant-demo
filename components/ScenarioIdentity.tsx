@@ -9,11 +9,9 @@ import type { ScenarioPresentation } from '@/lib/presentation';
 export function ScenarioIdentity({
   scenario,
   onInspect,
-  onBuild,
 }: {
   scenario: ScenarioPresentation;
   onInspect: () => void;
-  onBuild: () => void;
 }) {
   const headerRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -78,15 +76,6 @@ export function ScenarioIdentity({
           title="Inspector"
         >
           <span className="demo-tool-label">Inspector</span>
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onBuild}
-          aria-label="Build this scenario"
-          title="Build this scenario"
-        >
-          <span className="demo-tool-label">Build</span>
         </Button>
       </nav>
     </header>

@@ -80,6 +80,12 @@ export default function LandingPage() {
     useState<InspectionSnapshot>(EMPTY_INSPECTION);
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [buildOpen, setBuildOpen] = useState(false);
+  const buildTrigger = useRef<HTMLButtonElement>(null);
+
+  const openBuild: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+    buildTrigger.current = event.currentTarget;
+    setBuildOpen(true);
+  };
   const [outcome, setOutcome] = useState('');
 
   // Preload heavy modules on mount so they're already cached when the user
@@ -328,7 +334,6 @@ export default function LandingPage() {
         <ScenarioIdentity
           scenario={scenario}
           onInspect={() => setInspectorOpen(true)}
-          onBuild={() => setBuildOpen(true)}
         />
         <ScenarioFaq />
       </Dialog>
@@ -362,7 +367,8 @@ export default function LandingPage() {
               className="demo-conversation"
             />
             <div className="demo-ended-actions">
-              <Button onClick={handleStartConversation}>Start again</Button>
+              <Button variant="outline" onClick={handleStartConversation}>Start again</Button>
+              <Button onClick={openBuild}>Build Now</Button>
             </div>
           </section>
         ) : !showConversation ? (
@@ -371,6 +377,7 @@ export default function LandingPage() {
             isLoading={isLoading}
             error={error}
             onStart={handleStartConversation}
+            onBuild={openBuild}
           />
         ) : agoraData && rtmClient ? (
           <Suspense fallback={<LoadingSkeleton />}>
@@ -394,6 +401,7 @@ export default function LandingPage() {
                   rtmClient={rtmClient}
                   onTokenWillExpire={handleTokenWillExpire}
                   onEndConversation={handleEndConversation}
+                  onBuild={openBuild}
                   onActivityChange={setActivity}
                   onInspectionChange={setInspection}
                   ending={ending}
@@ -452,6 +460,12 @@ export default function LandingPage() {
         scenario={scenario}
         open={buildOpen}
         onOpenChange={setBuildOpen}
+        onCloseAutoFocus={(event) => {
+          if (buildTrigger.current?.isConnected) {
+            event.preventDefault();
+            buildTrigger.current.focus();
+          }
+        }}
       />
     </div>
   );

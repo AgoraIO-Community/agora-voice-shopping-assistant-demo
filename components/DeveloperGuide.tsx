@@ -45,15 +45,17 @@ export function DeveloperGuide({
   scenario,
   open,
   onOpenChange,
+  onCloseAutoFocus,
 }: {
   scenario: ScenarioPresentation;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCloseAutoFocus: (event: Event) => void;
 }) {
   const d = scenario.developer;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="demo-build-dialog">
+      <DialogContent className="demo-build-dialog" onCloseAutoFocus={onCloseAutoFocus}>
         <DialogHeader>
           <DialogTitle>Make this scenario your own</DialogTitle>
           <DialogDescription>

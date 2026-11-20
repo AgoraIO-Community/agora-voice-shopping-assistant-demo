@@ -101,6 +101,7 @@ export default function ConversationComponent({
   rtmClient,
   onTokenWillExpire,
   onEndConversation,
+  onBuild,
   ending = false,
   sessionTimeRemaining = 600,
   startupError,
@@ -751,6 +752,7 @@ export default function ConversationComponent({
           conversationId="scenario-transcript"
           onToggleVoice={handleMicToggle}
           onEnd={handleEndConversation}
+          onBuild={onBuild}
           onToggleConversation={() => setConversationOpen((open) => !open)}
           devices={
             <MicrophoneSelector localMicrophoneTrack={localMicrophoneTrack} />
