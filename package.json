@@ -1,6 +1,6 @@
 {
   "name": "agora-voice-shopping-assistant-demo",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Find and compare products with Shopify Catalog and Agora voice AI.",
   "private": true,
   "engines": {
